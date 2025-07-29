@@ -1,66 +1,82 @@
 import { useState } from "react";
-import axios from "axios";
 import { auth, db } from "../firebase";
 import { doc, updateDoc } from "firebase/firestore";
 
+const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqxgrimzt/image/upload";
+const CLOUDINARY_PRESET = "Upload_Avatar";
+
 export default function UploadAvatar() {
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
 
-  const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqxgrimzt/image/upload";
-  const CLOUDINARY_PRESET = "foro_avatar"; // Configura esto en Cloudinary
-
-  const handleChange = (e) => {
+  const handleFileChange = (e) => {
     const selected = e.target.files[0];
     if (selected) {
       setFile(selected);
-      setPreview(URL.createObjectURL(selected));
+      setPreviewUrl(URL.createObjectURL(selected));
     }
   };
 
   const handleUpload = async () => {
-    if (!file) return;
-    setUploading(true);
-    setError("");
+    if (!file || !auth.currentUser) return;
+    setLoading(true);
+    setMsg("");
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_PRESET);
 
     try {
-      const res = await axios.post(CLOUDINARY_URL, formData);
-      const imageUrl = res.data.secure_url;
+      const res = await fetch(CLOUDINARY_URL, {
+        method: "POST",
+        body: formData,
+      });
 
-      // Guardar en Firestore
-      const user = auth.currentUser;
-      if (user) {
-        await updateDoc(doc(db, "users", user.uid), {
-          avatarUrl: imageUrl,
-        });
-        alert("¡Foto actualizada!");
-      }
+      const data = await res.json();
+      const imageUrl = data.secure_url;
+
+      // Guarda en Firestore
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        avatarURL: imageUrl,
+      });
+
+      setMsg("✅ Avatar subido correctamente");
     } catch (err) {
-      setError("Error al subir la imagen");
+      console.error(err);
+      setMsg("❌ Hubo un error al subir el avatar.");
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="text-center my-6">
-      <h3 className="mb-2 font-semibold">Sube tu foto de perfil</h3>
-      <input type="file" onChange={handleChange} className="mb-4" />
-      {preview && <img src={preview} alt="preview" className="w-32 h-32 mx-auto rounded-full object-cover mb-2" />}
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold mb-2">Subir Avatar</h3>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="text-white"
+      />
+      {previewUrl && (
+        <div className="mt-4">
+          <img
+            src={previewUrl}
+            alt="Preview"
+            className="w-32 h-32 object-cover rounded-full border"
+          />
+        </div>
+      )}
       <button
         onClick={handleUpload}
-        disabled={uploading}
-        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white"
+        disabled={loading}
+        className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
       >
-        {uploading ? "Subiendo..." : "Subir Imagen"}
+        {loading ? "Subiendo..." : "Subir"}
       </button>
-      {error && <p className="text-red-400 mt-2">{error}</p>}
+      {msg && <p className="mt-2 text-sm">{msg}</p>}
     </div>
   );
 }
