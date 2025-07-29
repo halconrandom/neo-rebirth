@@ -1,0 +1,14 @@
+export default function Home() {
+  return (
+    <header className="hero-section">
+      <h2 className="hero-title">El Ciclo Comienza Otra Vez</h2>
+      <p className="hero-subtitle">
+        En un mundo de pactos rotos y clanes antiguos, el legado ninja renace.
+      </p>
+      <div className="hero-buttons">
+        <a href="#" className="btn-primary">Entrar al foro</a>
+        <a href="/registro" className="btn-secondary">Registrarse</a>
+      </div>
+    </header>
+  );
+}
