@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { collection, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import UploadAvatar from "../components/UploadAvatar";
@@ -9,9 +10,12 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [fichas, setFichas] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let unsubscribeFichas;
+
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
@@ -20,11 +24,25 @@ export default function Profile() {
         if (userSnap.exists()) {
           setUserData(userSnap.data());
         }
+
+        // Escucha en tiempo real las fichas del usuario
+        const fichasRef = collection(db, "users", firebaseUser.uid, "fichas");
+        unsubscribeFichas = onSnapshot(fichasRef, (snapshot) => {
+          const fichasData = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setFichas(fichasData);
+        });
       } else {
         navigate("/login");
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribe();
+      if (unsubscribeFichas) unsubscribeFichas();
+    };
   }, [navigate]);
 
   const handleCreateCharacter = (ficha) => {
@@ -43,8 +61,8 @@ export default function Profile() {
   }
 
   const handleCloseModal = () => {
-  setShowModal(false);
-};
+    setShowModal(false);
+  };
 
   return (
     <div className="relative min-h-screen py-16 px-6 md:px-16 lg:px-32 text-white">
@@ -99,7 +117,25 @@ export default function Profile() {
                 ＋
               </button>
             </div>
-            <p className="text-gray-400 text-sm">(Aquí irán las fichas)</p>
+            {fichas.length === 0 ? (
+              <p className="text-gray-400 text-sm">No hay fichas aún.</p>
+            ) : (
+              <ul className="text-sm space-y-2">
+                {fichas.map((ficha) => (
+                  <li
+                    key={ficha.id}
+                    className="bg-zinc-800 p-3 rounded border border-zinc-700"
+                  >
+                    <p className="text-orange-300 font-semibold">
+                      {ficha.nombrePersonaje}
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      {ficha.clan} – {ficha.rango || "Sin rango"}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>

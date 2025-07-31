@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { collection, addDoc } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
 import konohagakure from "../data/aldeas/konohagakure";
 import kumogakure from "../data/aldeas/kumogakure";
 import Especializaciones from "../data/especializaciones";
@@ -53,9 +56,22 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
   };
 
   const handleFinish = () => setPaso(5);
-  const handleConfirm = () => {
-    onCreate(formData);
-    handleReset();
+  const handleConfirm = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const fichasRef = collection(db, "users", user.uid, "fichas");
+      await addDoc(fichasRef, {
+        ...formData,
+        createdAt: new Date(),
+      });
+      alert("Ficha creada con éxito");
+      handleReset();
+    } catch (error) {
+      console.error("Error al guardar la ficha:", error);
+      alert("Hubo un error al guardar la ficha. Intenta nuevamente.");
+    }
   };
 
   if (!isOpen && !isVisible) return null;
@@ -105,10 +121,12 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
           Crear Personaje
         </h2>
 
-{/* Paso 1: Información Personal */}
+        {/* Paso 1: Información Personal */}
         {paso === 1 && (
           <div>
-            <h3 className="text-lg text-orange-300 mb-2">Información Personal</h3>
+            <h3 className="text-lg text-orange-300 mb-2">
+              Información Personal
+            </h3>
 
             <input
               name="nombrePersonaje"
