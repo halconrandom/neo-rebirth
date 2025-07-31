@@ -3,9 +3,9 @@ import { auth, db } from "../firebase";
 import { doc, updateDoc } from "firebase/firestore";
 
 const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqxgrimzt/image/upload";
-const CLOUDINARY_PRESET = "Upload_Avatar";
+const CLOUDINARY_PRESET = "CharacterUpload";
 
-export default function UploadAvatar() {
+export default function UploadCharacterAvatar({ characterId, onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,15 +21,14 @@ export default function UploadAvatar() {
   };
 
   const handleUpload = async () => {
-    const user = auth.currentUser;
-    if (!file || !user) return;
+    if (!file || !auth.currentUser) return;
 
     setLoading(true);
     setMsg("");
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_PRESET); // 
+    formData.append("upload_preset", CLOUDINARY_PRESET); //
 
     try {
       const res = await fetch(CLOUDINARY_URL, {
@@ -40,16 +39,17 @@ export default function UploadAvatar() {
       const data = await res.json();
       if (!res.ok || !data.secure_url) throw new Error("Upload failed");
 
-      await updateDoc(doc(db, "users", user.uid), {
-        avatarURL: data.secure_url,
-      });
+      const imageUrl = data.secure_url;
+      const fichaRef = doc(db, "users", auth.currentUser.uid, "fichas", characterId);
+      await updateDoc(fichaRef, { avatarURL: imageUrl });
 
+      if (onUploadSuccess) onUploadSuccess(imageUrl);
       setPreviewUrl("");
       setFile(null);
-      setMsg("✅ Avatar actualizado");
+      setMsg("✅ Imagen actualizada");
     } catch (err) {
       console.error("Upload error:", err);
-      setMsg("❌ Error al subir el avatar.");
+      setMsg("❌ Error al subir la imagen.");
     } finally {
       setLoading(false);
     }
@@ -66,14 +66,14 @@ export default function UploadAvatar() {
       {!file && (
         <>
           <input
-            id="userAvatarUpload"
+            id={`fileUpload-${characterId}`}
             type="file"
             accept="image/*"
             onChange={handleFileChange}
             className="hidden"
           />
           <label
-            htmlFor="userAvatarUpload"
+            htmlFor={`fileUpload-${characterId}`}
             className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 text-xs cursor-pointer"
           >
             Elegir imagen

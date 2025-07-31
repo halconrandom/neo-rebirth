@@ -6,6 +6,8 @@ import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import ForumsPage from "./forums/ForumsPage";
+import FichaDetalle from "./pages/FichaDetalle";
+import Tienda from "./pages/Tienda";
 
 import "./App.css";
 
@@ -20,6 +22,8 @@ function App() {
         <Route path="/perfil" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/foro" element={<ForumsPage />} />
+        <Route path="/fichas/:id" element={<FichaDetalle />} />
+        <Route path="/tienda" element={<Tienda />} /> 
       </Routes>
     </div>
   );

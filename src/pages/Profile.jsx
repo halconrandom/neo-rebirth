@@ -5,6 +5,7 @@ import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import UploadAvatar from "../components/UploadAvatar";
 import CreateCharacterModal from "../components/CreateCharacterModal";
+import UploadCharacterAvatar from "../components/UploadCharacterAvatar";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -14,8 +15,6 @@ export default function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let unsubscribeFichas;
-
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
@@ -25,24 +24,26 @@ export default function Profile() {
           setUserData(userSnap.data());
         }
 
-        // Escucha en tiempo real las fichas del usuario
+        // Aquí agregamos la escucha en tiempo real para las fichas
         const fichasRef = collection(db, "users", firebaseUser.uid, "fichas");
-        unsubscribeFichas = onSnapshot(fichasRef, (snapshot) => {
+        const unsubscribeFichas = onSnapshot(fichasRef, (snapshot) => {
           const fichasData = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
           }));
           setFichas(fichasData);
         });
+
+        // Retorna ambos unsubscribe cuando el componente se desmonta
+        return () => {
+          unsubscribeFichas();
+        };
       } else {
         navigate("/login");
       }
     });
 
-    return () => {
-      unsubscribe();
-      if (unsubscribeFichas) unsubscribeFichas();
-    };
+    return () => unsubscribe(); // Solo para cerrar el listener de auth si se desmonta
   }, [navigate]);
 
   const handleCreateCharacter = (ficha) => {
@@ -124,14 +125,22 @@ export default function Profile() {
                 {fichas.map((ficha) => (
                   <li
                     key={ficha.id}
-                    className="bg-zinc-800 p-3 rounded border border-zinc-700"
+                    className="bg-zinc-800 p-3 rounded border border-zinc-700 flex items-center justify-between"
                   >
-                    <p className="text-orange-300 font-semibold">
-                      {ficha.nombrePersonaje}
-                    </p>
-                    <p className="text-gray-400 text-xs">
-                      {ficha.clan} – {ficha.rango || "Sin rango"}
-                    </p>
+                    <div
+                      onClick={() => navigate(`/fichas/${ficha.id}`)}
+                      className="cursor-pointer"
+                    >
+                      <p className="text-orange-300 font-semibold">
+                        {ficha.nombrePersonaje}
+                      </p>
+                      <p className="text-gray-400 text-xs">
+                        {ficha.clan} – {ficha.rango || "Sin rango"}
+                      </p>
+                    </div>
+
+                    {/* Componente para cambiar el avatar de la ficha */}
+                    <UploadCharacterAvatar characterId={ficha.id} />
                   </li>
                 ))}
               </ul>

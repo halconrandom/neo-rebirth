@@ -31,19 +31,45 @@ export default function Navbar() {
         Shinobi Legacy: Neo Rebirth
       </h1>
       <div className="flex gap-6 items-center">
-        <Link to="/" className="nav-link text-orange-400 hover:text-orange-300">Inicio</Link>
+        <Link to="/" className="nav-link text-orange-400 hover:text-orange-300">
+          Inicio
+        </Link>
         {!isLoggedIn && (
           <>
-            <Link to="/registro" className="nav-link text-orange-400 hover:text-orange-300">Registro</Link>
-            <Link to="/login" className="nav-link text-orange-400 hover:text-orange-300">Iniciar sesión</Link>
+            <Link
+              to="/registro"
+              className="nav-link text-orange-400 hover:text-orange-300"
+            >
+              Registro
+            </Link>
+            <Link
+              to="/login"
+              className="nav-link text-orange-400 hover:text-orange-300"
+            >
+              Iniciar sesión
+            </Link>
           </>
         )}
 
         {isLoggedIn && (
           <>
-            <Link to="/foro" className="nav-link text-orange-400 hover:text-orange-300">Foro</Link>
-            <Link to="/perfil" className="nav-link text-orange-400 hover:text-orange-300">
+            <Link
+              to="/foro"
+              className="nav-link text-orange-400 hover:text-orange-300"
+            >
+              Foro
+            </Link>
+            <Link
+              to="/perfil"
+              className="nav-link text-orange-400 hover:text-orange-300"
+            >
               Perfil {nombreUsuario}
+            </Link>
+            <Link
+              to="/tienda"
+              className="nav-link text-orange-400 hover:text-orange-300"
+            >
+              Tienda
             </Link>
             <button
               onClick={() => {
