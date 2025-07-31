@@ -4,7 +4,7 @@ import { db, auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import konohagakure from "../data/aldeas/konohagakure";
 import kumogakure from "../data/aldeas/kumogakure";
-import Especializaciones from "../data/especializaciones";
+import Especializaciones from "../data/Especializaciones";
 
 const aldeas = [konohagakure, kumogakure];
 
