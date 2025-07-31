@@ -5,6 +5,8 @@ import Register from "./pages/Register";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import ForumsPage from "./forums/ForumsPage";
+
 import "./App.css";
 
 function App() {
@@ -17,6 +19,7 @@ function App() {
         <Route path="/registro" element={<Register />} />
         <Route path="/perfil" element={<Profile />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/foro" element={<ForumsPage />} />
       </Routes>
     </div>
   );

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Home() {
   return (
     <header className="hero-section">
@@ -6,7 +8,7 @@ export default function Home() {
         En un mundo de pactos rotos y clanes antiguos, el legado ninja renace.
       </p>
       <div className="hero-buttons">
-        <a href="#" className="btn-primary">Entrar al foro</a>
+        <Link to="/foro" className="btn-primary">Entrar al foro</Link>
         <a href="/registro" className="btn-secondary">Registrarse</a>
       </div>
     </header>

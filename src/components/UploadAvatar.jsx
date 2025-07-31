@@ -52,31 +52,32 @@ export default function UploadAvatar() {
   };
 
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-semibold mb-2">Subir Avatar</h3>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="text-white"
-      />
-      {previewUrl && (
-        <div className="mt-4">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="w-32 h-32 object-cover rounded-full border"
-          />
-        </div>
-      )}
-      <button
-        onClick={handleUpload}
-        disabled={loading}
-        className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
-      >
-        {loading ? "Subiendo..." : "Subir"}
-      </button>
-      {msg && <p className="mt-2 text-sm">{msg}</p>}
-    </div>
+    <div className="mt-6 text-center">
+  {previewUrl && (
+    <img
+      src={previewUrl}
+      alt="Preview"
+      className="w-32 h-32 object-cover rounded-full border mx-auto mb-4"
+    />
+  )}
+
+  {/* Campo de selección de archivo oculto */}
+  <div className="mb-4">
+    <input
+      id="fileUpload"
+      type="file"
+      accept="image/*"
+      onChange={handleFileChange}
+      className="hidden"
+    />
+    <label
+      htmlFor="fileUpload"
+      className="cursor-pointer px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+    >
+      Elegir imagen
+    </label>
+  </div>
+  {msg && <p className="mt-2 text-sm">{msg}</p>}
+</div>
   );
 }

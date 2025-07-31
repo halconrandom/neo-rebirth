@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 
 
@@ -22,6 +23,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);

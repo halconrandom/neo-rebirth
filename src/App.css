@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+.input {
+  @apply w-full px-4 py-2 rounded bg-zinc-800 text-white placeholder-zinc-400 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-orange-500;
+}
+
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}
 /* Container general */
 .app-container {
   @apply bg-[#1c1c1c] text-gray-200 min-h-screen font-sans;
