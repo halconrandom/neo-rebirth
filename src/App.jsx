@@ -10,6 +10,7 @@ import FichaDetalle from "./pages/FichaDetalle";
 import Tienda from "./pages/Tienda";
 import PerfilPublico from "./components/PerfilPublico";
 import AdminPanel from "./components/AdminPanel";
+import UserSettings from "./components/ProfileSettings";
 
 
 import "./App.css";
@@ -30,6 +31,7 @@ function App() {
           <Route path="/tienda" element={<Tienda />} />
           <Route path="/perfil-publico/:id" element={<PerfilPublico />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/ajustes" element={<UserSettings />} />
         </Routes>
       </main>
     </div>

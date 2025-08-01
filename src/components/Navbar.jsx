@@ -2,12 +2,14 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [nombreUsuario, setNombreUsuario] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [rolUsuario, setRolUsuario] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -28,10 +30,15 @@ export default function Navbar() {
     return () => unsubscribe();
   }, []);
 
-  const cerrarSesion = () => {
-    auth.signOut();
+const cerrarSesion = async () => {
+  try {
+    await auth.signOut();
     setIsMenuOpen(false);
-  };
+    navigate("/"); // Redirige al Home
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
+};
 
   return (
     <nav className="navbar sticky top-0 z-50 bg-zinc-900 text-white px-6 py-4 border-b border-zinc-700 shadow-md animate-fadeIn">

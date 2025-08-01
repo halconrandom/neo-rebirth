@@ -43,19 +43,20 @@ export default function Home() {
               <Link to="/tienda" className="btn-primary">
                 Ir a la tienda
               </Link>
-              <Link
-                to="/perfil"
-                className="btn-primary"
-              >
+              <Link to="/perfil" className="btn-primary">
                 Ir a mi perfil
               </Link>
             </>
           )}
-
           {!isLoggedIn && (
-            <Link to="/registro" className="btn-secondary">
-              Registrarse
-            </Link>
+            <>
+              <Link to="/registro" className="btn-secondary">
+                Registrarse
+              </Link>
+              <Link to="/login" className="btn-secondary">
+                Iniciar sesión
+              </Link>
+            </>
           )}
         </div>
       </div>

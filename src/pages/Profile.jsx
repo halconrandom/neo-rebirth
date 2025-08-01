@@ -5,6 +5,8 @@ import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import UploadAvatar from "../components/UploadAvatar";
 import { Link } from "react-router-dom";
+import { Settings } from "lucide-react";
+
 import CreateCharacterModal from "../components/CreateCharacterModal";
 import UploadCharacterAvatar from "../components/UploadCharacterAvatar";
 
@@ -87,6 +89,17 @@ export default function Profile() {
             >
               Ver perfil público
             </Link>
+          </div>
+
+          <div className="flex justify-center mt-2">
+<Link
+  to="/ajustes"
+  className="flex items-center gap-1 px-3 py-1 text-sm bg-zinc-700 hover:bg-zinc-600 rounded text-white transition"
+>
+  <Settings size={16} />
+  Configuración
+</Link>
+
           </div>
 
           <div className="mt-6 text-center">

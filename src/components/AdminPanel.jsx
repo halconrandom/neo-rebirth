@@ -2,23 +2,22 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
-// ... imports sin cambios
+import { User, Plus, Shield, Flag, Ban, FileWarning, Cog, Scroll, LogOut } from "lucide-react";
 
 export default function AdminPanel() {
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState([]);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [uidActual, setUidActual] = useState(null); // 👈 Guardar UID del admin actual
+  const [uidActual, setUidActual] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const verificarRol = async () => {
       const user = auth.currentUser;
       if (!user) return navigate("/");
-      setUidActual(user.uid); // 👈 Guardar UID para validar cambios propios
+      setUidActual(user.uid);
 
-      const ref = doc(db, "users", user.uid);
       const snap = await getDocs(collection(db, "users"));
       const usuarioActual = snap.docs.find((d) => d.id === user.uid);
 
@@ -33,9 +32,7 @@ export default function AdminPanel() {
     const fetchUsuarios = async () => {
       const snap = await getDocs(collection(db, "users"));
       const lista = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const ordenados = lista.sort(
-        (a, b) => b.creado?.toMillis?.() - a.creado?.toMillis?.()
-      );
+      const ordenados = lista.sort((a, b) => b.creado?.toMillis?.() - a.creado?.toMillis?.());
       setUsuarios(ordenados);
       setLoading(false);
     };
@@ -43,110 +40,113 @@ export default function AdminPanel() {
   }, []);
 
   useEffect(() => {
-    if (!busqueda) {
-      setFiltro(usuarios);
-    } else {
-      const query = busqueda.toLowerCase();
-      const filtrados = usuarios.filter(
-        (u) =>
-          u.nombreUsuario?.toLowerCase().includes(query) ||
-          u.email?.toLowerCase().includes(query) ||
-          u.fichaDestacada?.toLowerCase().includes(query)
+    if (!busqueda) setFiltro(usuarios);
+    else {
+      const q = busqueda.toLowerCase();
+      setFiltro(
+        usuarios.filter(
+          (u) =>
+            u.nombreUsuario?.toLowerCase().includes(q) ||
+            u.email?.toLowerCase().includes(q) ||
+            u.fichaDestacada?.toLowerCase().includes(q)
+        )
       );
-      setFiltro(filtrados);
     }
   }, [busqueda, usuarios]);
 
   const cambiarRol = async (id, nuevoRol) => {
-    if (id === uidActual) {
-      alert("No puedes cambiar tu propio rol.");
-      return;
-    }
-
+    if (id === uidActual) return alert("No puedes cambiar tu propio rol.");
     try {
       await updateDoc(doc(db, "users", id), { rol: nuevoRol });
-      setUsuarios((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, rol: nuevoRol } : u))
-      );
-    } catch (error) {
-      console.error("Error al cambiar el rol:", error);
-      alert("No se pudo cambiar el rol. Verifica tus permisos y reglas de Firestore.");
+      setUsuarios((prev) => prev.map((u) => (u.id === id ? { ...u, rol: nuevoRol } : u)));
+    } catch (err) {
+      console.error("Error al cambiar el rol:", err);
+      alert("No se pudo cambiar el rol. Verifica permisos o reglas.");
     }
-  };
-
-  const resetearPassword = async (email) => {
-    alert(`Contraseña de ${email} fue reseteada a 'reboot123' (mock)`);
   };
 
   return (
-    <div className="min-h-screen p-6 bg-zinc-900 text-white">
-      <h1 className="text-3xl font-bold mb-6 text-orange-400">Panel de Administración</h1>
+    <div className="flex min-h-screen bg-zinc-900 text-white">
+      <aside className="w-64 bg-zinc-950 p-4 flex flex-col gap-4 border-r border-zinc-800">
+        <h2 className="text-2xl font-bold text-orange-400 mb-4">Admin Panel</h2>
+        <nav className="flex flex-col gap-2 text-sm">
+          <NavItem icon={<User />} label="Dashboard" />
+          <NavItem icon={<Shield />} label="User Management" />
+          <NavItem icon={<Plus />} label="Role Assignment" />
+          <NavItem icon={<Flag />} label="Content Moderation" />
+          <NavItem icon={<Ban />} label="Ban List" />
+          <NavItem icon={<FileWarning />} label="Reports" />
+          <NavItem icon={<Cog />} label="Settings" />
+          <NavItem icon={<Scroll />} label="Logs" />
+          <NavItem icon={<LogOut />} label="Logout" />
+        </nav>
+      </aside>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Buscar por usuario, correo o personaje"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="w-full p-2 rounded bg-zinc-800 text-white placeholder-gray-400"
-        />
-      </div>
+      <main className="flex-1 p-6 overflow-y-auto">
+        <h1 className="text-3xl font-bold mb-6 text-orange-300">Dashboard</h1>
 
-      {loading ? (
-        <p className="text-gray-400">Cargando usuarios...</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-zinc-800 text-sm text-left">
-                <th className="p-2 border-b border-zinc-700">Usuario</th>
-                <th className="p-2 border-b border-zinc-700">Correo</th>
-                <th className="p-2 border-b border-zinc-700">Rol</th>
-                <th className="p-2 border-b border-zinc-700">Miembro desde</th>
-                <th className="p-2 border-b border-zinc-700">Ficha destacada</th>
-                <th className="p-2 border-b border-zinc-700">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtro.map((u) => (
-                <tr key={u.id} className="hover:bg-zinc-800 text-sm">
-                  <td className="p-2 border-b border-zinc-700 font-semibold text-orange-300">
-                    {u.nombreUsuario}
-                  </td>
-                  <td className="p-2 border-b border-zinc-700">{u.email}</td>
-                  <td className="p-2 border-b border-zinc-700">
-                    <select
-                      value={u.rol || "user"}
-                      onChange={(e) => cambiarRol(u.id, e.target.value)}
-                      className="bg-zinc-700 rounded text-white text-sm"
-                      disabled={u.id === uidActual} // 👈 Bloquear edición de su propio rol
-                    >
-                      <option value="admin">Admin</option>
-                      <option value="mod">Mod</option>
-                      <option value="lider">Líder de Aldea</option>
-                      <option value="user">Usuario</option>
-                    </select>
-                  </td>
-                  <td className="p-2 border-b border-zinc-700">
-                    {u.creado?.toDate?.().toLocaleDateString("es-ES") || "-"}
-                  </td>
-                  <td className="p-2 border-b border-zinc-700">
-                    {u.fichaDestacada || "Ninguna"}
-                  </td>
-                  <td className="p-2 border-b border-zinc-700">
-                    <button
-                      onClick={() => resetearPassword(u.email)}
-                      className="text-blue-400 hover:text-blue-300 text-sm"
-                    >
-                      Reset pass
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-3 gap-6 mb-6">
+          <SummaryCard title="Users" value={usuarios.length} icon={<User />} />
+          <SummaryCard title="New Roles" value={5} icon={<Plus />} />
+          <SummaryCard title="Pending Posts" value={16} icon={<FileWarning />} />
         </div>
-      )}
+
+        <section className="grid grid-cols-2 gap-6">
+          <div className="bg-zinc-800 p-4 rounded-xl shadow">
+            <h2 className="text-lg font-semibold mb-4 text-orange-300">Recent Reports</h2>
+            <ul className="space-y-3">
+              <ReportItem tipo="Spam" usuario="user123" />
+              <ReportItem tipo="Harassment" usuario="ninja_89" />
+              <ReportItem tipo="Spam" usuario="shadow221" />
+              <ReportItem tipo="Offensive Language" usuario="freestyle99" />
+            </ul>
+          </div>
+
+          <div className="bg-zinc-800 p-4 rounded-xl shadow">
+            <h2 className="text-lg font-semibold mb-4 text-orange-300">Activity Logs</h2>
+            <ul className="text-sm space-y-2">
+              <li>✅ Administrator — Role assigned (7 min ago)</li>
+              <li>✅ New user registered (12 min ago)</li>
+              <li>✅ Post approved (25 min ago)</li>
+            </ul>
+          </div>
+        </section>
+
+        <div className="mt-6 bg-zinc-800 p-4 rounded-xl flex gap-4 justify-end">
+          <button className="bg-orange-500 px-4 py-2 rounded hover:bg-orange-600">Add User</button>
+          <button className="bg-orange-500 px-4 py-2 rounded hover:bg-orange-600">Create Role</button>
+          <button className="bg-orange-500 px-4 py-2 rounded hover:bg-orange-600">Settings</button>
+        </div>
+      </main>
     </div>
+  );
+}
+
+function NavItem({ icon, label }) {
+  return (
+    <button className="flex items-center gap-2 px-3 py-2 hover:bg-zinc-800 rounded transition">
+      {icon} <span>{label}</span>
+    </button>
+  );
+}
+
+function SummaryCard({ title, value, icon }) {
+  return (
+    <div className="bg-zinc-800 p-4 rounded-xl flex items-center gap-4 shadow">
+      <div className="bg-orange-500 p-3 rounded-full">{icon}</div>
+      <div>
+        <h3 className="text-2xl font-bold">{value}</h3>
+        <p className="text-sm text-zinc-300">{title}</p>
+      </div>
+    </div>
+  );
+}
+
+function ReportItem({ tipo, usuario }) {
+  return (
+    <li className="flex justify-between items-center bg-zinc-900 p-2 rounded">
+      <div className="text-orange-300 font-semibold">{tipo}</div>
+      <div className="text-sm text-zinc-400">{usuario}</div>
+    </li>
   );
 }
