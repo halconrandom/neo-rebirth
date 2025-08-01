@@ -4,6 +4,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import UploadAvatar from "../components/UploadAvatar";
+import { Link } from "react-router-dom";
 import CreateCharacterModal from "../components/CreateCharacterModal";
 import UploadCharacterAvatar from "../components/UploadCharacterAvatar";
 
@@ -79,6 +80,14 @@ export default function Profile() {
               <UploadAvatar />
             </div>
           </div>
+          <div className="flex justify-center mt-3">
+            <Link
+              to={`/perfil-publico/${auth.currentUser?.uid}`}
+              className="px-3 py-1 text-sm bg-orange-500 hover:bg-orange-400 rounded text-white transition"
+            >
+              Ver perfil público
+            </Link>
+          </div>
 
           <div className="mt-6 text-center">
             <h2 className="text-2xl font-bold">{userData.nombreUsuario}</h2>
@@ -131,9 +140,19 @@ export default function Profile() {
                       onClick={() => navigate(`/fichas/${ficha.id}`)}
                       className="cursor-pointer"
                     >
-                      <p className="text-orange-300 font-semibold">
-                        {ficha.nombrePersonaje}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        {ficha.avatarURL && (
+                          <img
+                            src={ficha.avatarURL}
+                            alt="avatar ficha"
+                            className="w-6 h-6 rounded-full object-cover"
+                          />
+                        )}
+                        <p className="text-orange-300 font-semibold">
+                          {ficha.nombrePersonaje}
+                        </p>
+                      </div>
+
                       <p className="text-gray-400 text-xs">
                         {ficha.clan} – {ficha.rango || "Sin rango"}
                       </p>

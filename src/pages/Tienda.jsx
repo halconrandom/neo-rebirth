@@ -45,9 +45,9 @@ export default function Tienda() {
   const totalCompra = carrito.reduce((acc, obj) => acc + obj.precio * obj.cantidad, 0);
 
   return (
-    <div className="flex h-screen text-white">
+    <div className="flex flex-col sm:flex-row h-screen text-white">
       {/* Sidebar */}
-      <div className="w-1/4 p-4 bg-zinc-900 border-r border-zinc-700">
+      <div className="w-full sm:w-1/4 p-4 bg-zinc-900 border-b sm:border-b-0 sm:border-r border-zinc-700">
         <h2 className="text-lg font-semibold mb-2">Personaje</h2>
         <select
           className="w-full mb-4 p-2 bg-zinc-800 text-white rounded"
@@ -99,7 +99,7 @@ export default function Tienda() {
       </div>
 
       {/* Zona principal */}
-      <div className="w-3/4 p-6 bg-zinc-800">
+      <div className="w-full sm:w-3/4 p-6 bg-zinc-800 overflow-y-auto">
         <h1 className="text-2xl font-bold mb-4">Tienda</h1>
 
         {/* Tabs de categorias */}
@@ -120,7 +120,7 @@ export default function Tienda() {
         </div>
 
         {/* Productos */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {mockProductos[categoria].map((producto) => (
             <div
               key={producto.id}

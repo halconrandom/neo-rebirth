@@ -8,23 +8,27 @@ import Login from "./pages/Login";
 import ForumsPage from "./forums/ForumsPage";
 import FichaDetalle from "./pages/FichaDetalle";
 import Tienda from "./pages/Tienda";
+import PerfilPublico from "./components/PerfilPublico";
 
 import "./App.css";
 
 function App() {
   return (
-    <div className="app-container">
-
+    <div className="min-h-screen w-full bg-zinc-900 text-white">
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/registro" element={<Register />} />
-        <Route path="/perfil" element={<Profile />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/foro" element={<ForumsPage />} />
-        <Route path="/fichas/:id" element={<FichaDetalle />} />
-        <Route path="/tienda" element={<Tienda />} /> 
-      </Routes>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/registro" element={<Register />} />
+          <Route path="/perfil" element={<Profile />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/foro" element={<ForumsPage />} />
+          <Route path="/fichas/:id" element={<FichaDetalle />} />
+          <Route path="/tienda" element={<Tienda />} />
+          <Route path="/perfil-publico/:id" element={<PerfilPublico />} />
+        </Routes>
+      </main>
     </div>
   );
 }

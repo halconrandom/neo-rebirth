@@ -39,9 +39,9 @@ export default function FichaDetalle() {
   if (!ficha) return <div className="p-4 text-white">Cargando ficha...</div>;
 
   return (
-    <div className="flex h-screen text-white">
+    <div className="flex flex-col md:flex-row min-h-screen text-white">
       {/* Sidebar Lateral */}
-      <div className="w-1/4 p-6 border-r border-gray-700 bg-zinc-900 flex flex-col items-center">
+      <div className="w-full md:w-1/4 p-4 md:p-6 border-b md:border-b-0 md:border-r border-gray-700 bg-zinc-900 flex flex-col items-center">
         <button
           onClick={() => navigate("/perfil")}
           className="mb-4 self-start text-sm text-orange-400 hover:text-orange-200 transition"
@@ -66,6 +66,7 @@ export default function FichaDetalle() {
         </div>
 
         <div className="w-full text-sm">
+          {/* Datos generales */}
           <p className="mb-1">
             <span className="text-orange-300 font-semibold">Nombre:</span>{" "}
             {ficha.nombrePersonaje}
@@ -127,13 +128,13 @@ export default function FichaDetalle() {
       </div>
 
       {/* Zona derecha */}
-      <div className="w-3/4 p-6 bg-zinc-800 overflow-y-auto">
+      <div className="w-full md:w-3/4 p-4 md:p-6 bg-zinc-800 overflow-y-auto">
         {/* Tabs superiores */}
-        <div className="flex gap-2 mb-4">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           {["Equipo", "Cronología", "Técnicas", "Estadísticas"].map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-1 text-sm rounded ${
+              className={`px-4 py-2 text-base font-semibold rounded ${
                 activeTab === tab
                   ? "bg-orange-500 text-white"
                   : "bg-gray-700 text-white hover:bg-gray-600"
@@ -146,7 +147,7 @@ export default function FichaDetalle() {
         </div>
 
         {/* Contenido dinámico por pestaña */}
-        <div className="mb-4 border border-gray-700 rounded p-4 min-h-[300px]">
+        <div className="mb-4 border border-gray-700 rounded p-4 min-h-[200px]">
           {activeTab === "Equipo" && (
             <p className="text-gray-300">[Equipo del personaje aquí]</p>
           )}
@@ -161,7 +162,6 @@ export default function FichaDetalle() {
           )}
         </div>
 
-        {/* Zona de comentarios futura */}
         <div className="border-t border-gray-700 pt-4">
           <p className="text-sm text-gray-500 italic">
             Zona reservada para añadir comentarios nuevos en el futuro.
