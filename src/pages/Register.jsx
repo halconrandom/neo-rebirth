@@ -15,13 +15,15 @@ export default function Register() {
     email: "",
     password: "",
     nombreUsuario: "",
+    biografia: "",
+    twitter: "",
+    discord: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState(null);
 
-  // 🔁 Verifica disponibilidad con debounce
   useEffect(() => {
     if (!form.nombreUsuario.trim()) {
       setUsernameAvailable(null);
@@ -43,7 +45,7 @@ export default function Register() {
       } finally {
         setIsCheckingUsername(false);
       }
-    }, 600); // ⏳ Espera 600ms tras dejar de escribir
+    }, 600);
 
     return () => clearTimeout(delay);
   }, [form.nombreUsuario]);
@@ -59,13 +61,8 @@ export default function Register() {
 
     const { email, password, nombreUsuario } = form;
 
-    if (!nombreUsuario.trim()) {
-      setError("El nombre de usuario no puede estar vacío.");
-      return;
-    }
-
-    if (!email.trim() || !password.trim()) {
-      setError("Debes completar todos los campos.");
+    if (!nombreUsuario.trim() || !email.trim() || !password.trim()) {
+      setError("Debes completar todos los campos obligatorios.");
       return;
     }
 
@@ -74,7 +71,7 @@ export default function Register() {
       return;
     }
 
-    // 🔐 Re-verifica nombre de usuario por seguridad
+    // Verificación del nombre de usuario
     setIsCheckingUsername(true);
     const q = query(
       collection(db, "users"),
@@ -101,6 +98,15 @@ export default function Register() {
         nombreUsuario: nombreUsuario.trim(),
         email,
         creado: new Date(),
+        rol: "user",
+        avatarURL: "", // default o se puede generar automáticamente
+        biografia: form.biografia.trim(),
+        redes: {
+          twitter: form.twitter.trim(),
+          discord: form.discord.trim(),
+        },
+        fichaDestacada: null,
+        ultimaActividad: new Date(),
       });
 
       setSuccess(true);
@@ -123,29 +129,27 @@ export default function Register() {
           onSubmit={handleSubmit}
           className="max-w-md mx-auto space-y-4 text-left"
         >
-          <div>
-            <input
-              type="text"
-              name="nombreUsuario"
-              placeholder="Nombre de usuario"
-              value={form.nombreUsuario}
-              onChange={handleChange}
-              className="w-full p-2 bg-gray-800 text-white rounded"
-            />
-            {form.nombreUsuario && (
-              <p className="text-sm mt-1">
-                {isCheckingUsername ? (
-                  <span className="text-yellow-400">
-                    Verificando disponibilidad...
-                  </span>
-                ) : usernameAvailable === true ? (
-                  <span className="text-green-400">Nombre disponible</span>
-                ) : usernameAvailable === false ? (
-                  <span className="text-red-400">Nombre ya está en uso</span>
-                ) : null}
-              </p>
-            )}
-          </div>
+          <input
+            type="text"
+            name="nombreUsuario"
+            placeholder="Nombre de usuario"
+            value={form.nombreUsuario}
+            onChange={handleChange}
+            className="w-full p-2 bg-gray-800 text-white rounded"
+          />
+          {form.nombreUsuario && (
+            <p className="text-sm mt-1">
+              {isCheckingUsername ? (
+                <span className="text-yellow-400">
+                  Verificando disponibilidad...
+                </span>
+              ) : usernameAvailable === true ? (
+                <span className="text-green-400">Nombre disponible</span>
+              ) : usernameAvailable === false ? (
+                <span className="text-red-400">Nombre ya está en uso</span>
+              ) : null}
+            </p>
+          )}
 
           <input
             type="email"
@@ -161,6 +165,32 @@ export default function Register() {
             name="password"
             placeholder="Contraseña"
             value={form.password}
+            onChange={handleChange}
+            className="w-full p-2 bg-gray-800 text-white rounded"
+          />
+
+          <textarea
+            name="biografia"
+            placeholder="Biografía pública (opcional)"
+            value={form.biografia}
+            onChange={handleChange}
+            className="w-full p-2 bg-gray-800 text-white rounded"
+          />
+
+          <input
+            type="text"
+            name="twitter"
+            placeholder="Twitter (opcional)"
+            value={form.twitter}
+            onChange={handleChange}
+            className="w-full p-2 bg-gray-800 text-white rounded"
+          />
+
+          <input
+            type="text"
+            name="discord"
+            placeholder="Discord (opcional)"
+            value={form.discord}
             onChange={handleChange}
             className="w-full p-2 bg-gray-800 text-white rounded"
           />

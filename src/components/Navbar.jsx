@@ -7,6 +7,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [nombreUsuario, setNombreUsuario] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [rolUsuario, setRolUsuario] = useState("");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -15,7 +16,9 @@ export default function Navbar() {
         const ref = doc(db, "users", user.uid);
         const snap = await getDoc(ref);
         if (snap.exists()) {
-          setNombreUsuario(snap.data().nombreUsuario);
+          const userData = snap.data(); // ✅
+          setNombreUsuario(userData.nombreUsuario);
+          setRolUsuario(userData.rol || "user");
         }
       } else {
         setNombreUsuario("");
@@ -105,6 +108,18 @@ export default function Navbar() {
               >
                 Tienda
               </Link>
+              {rolUsuario === "admin" && (
+                <Link
+                  to="/admin"
+                  className="nav-link text-orange-400 hover:text-orange-300 flex items-center gap-1"
+                >
+                  <span role="img" aria-label="admin">
+                    👑
+                  </span>{" "}
+                  Admin Panel
+                </Link>
+              )}
+
               <button
                 onClick={cerrarSesion}
                 className="text-red-400 hover:text-red-300"
@@ -179,6 +194,19 @@ export default function Navbar() {
               >
                 Tienda
               </Link>
+              {rolUsuario === "admin" && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-orange-400 flex items-center gap-1"
+                >
+                  <span role="img" aria-label="admin">
+                    👑
+                  </span>{" "}
+                  Admin Panel
+                </Link>
+              )}
+
               <button onClick={cerrarSesion} className="text-red-400 text-left">
                 Cerrar sesión
               </button>

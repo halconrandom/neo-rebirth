@@ -64,6 +64,7 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
       const fichasRef = collection(db, "users", user.uid, "fichas");
       await addDoc(fichasRef, {
         ...formData,
+        ryus: 1000,
         createdAt: new Date(),
       });
       alert("Ficha creada con éxito");

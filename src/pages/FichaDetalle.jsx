@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import { deleteDoc } from "firebase/firestore";
 import UploadCharacterAvatar from "../components/UploadCharacterAvatar";
 
 export default function FichaDetalle() {
@@ -10,6 +11,23 @@ export default function FichaDetalle() {
   const [ficha, setFicha] = useState(null);
   const [userId, setUserId] = useState(null);
   const [activeTab, setActiveTab] = useState("Equipo");
+
+  const handleBorrarFicha = async () => {
+    const confirmar = window.confirm(
+      "¿Estás seguro de que quieres borrar esta ficha? Esta acción no se puede deshacer."
+    );
+    if (!confirmar || !userId || !id) return;
+
+    try {
+      const ref = doc(db, "users", userId, "fichas", id);
+      await deleteDoc(ref);
+      alert("Ficha borrada con éxito.");
+      navigate("/perfil");
+    } catch (error) {
+      console.error("Error al borrar ficha:", error);
+      alert("No se pudo borrar la ficha.");
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -119,12 +137,23 @@ export default function FichaDetalle() {
           </div>
         </div>
 
-        <button
-          onClick={() => alert("Funcionalidad de edición aún no implementada.")}
-          className="mt-6 px-4 py-2 bg-orange-500 hover:bg-orange-400 text-sm font-semibold rounded transition"
-        >
-          Editar ficha
-        </button>
+        <div className="mt-6 flex flex-col gap-2 w-full">
+          <button
+            onClick={() =>
+              alert("Funcionalidad de edición aún no implementada.")
+            }
+            className="px-4 py-2 bg-orange-500 hover:bg-orange-400 text-sm font-semibold rounded transition"
+          >
+            Editar ficha
+          </button>
+
+          <button
+            onClick={handleBorrarFicha}
+            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-sm font-semibold rounded transition"
+          >
+            Borrar ficha
+          </button>
+        </div>
       </div>
 
       {/* Zona derecha */}
