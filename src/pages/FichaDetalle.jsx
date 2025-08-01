@@ -86,6 +86,19 @@ export default function FichaDetalle() {
         <div className="w-full text-sm">
           {/* Datos generales */}
           <p className="mb-1">
+            <span className="text-orange-300 font-semibold">Creado el:</span>{" "}
+            {ficha.createdAtLocal
+              ? new Date(ficha.createdAtLocal).toLocaleString("es-CO", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "—"}
+          </p>
+
+          <p className="mb-1">
             <span className="text-orange-300 font-semibold">Nombre:</span>{" "}
             {ficha.nombrePersonaje}
           </p>

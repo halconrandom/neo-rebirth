@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import konohagakure from "../data/aldeas/konohagakure";
 import kumogakure from "../data/aldeas/kumogakure";
 import Especializaciones from "../data/Especializaciones";
+import { serverTimestamp } from "firebase/firestore";
 
 const aldeas = [konohagakure, kumogakure];
 
@@ -12,6 +13,7 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
   const [paso, setPaso] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState({
+    nombreBase: "",
     nombrePersonaje: "",
     edad: "",
     apodo: "",
@@ -31,8 +33,56 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
     }
   }, [isOpen]);
 
+  const {
+    aldeaNacimientoSeleccionada,
+    clanesDisponibles,
+    clanSeleccionado,
+    especializacionesDisponibles,
+  } = useMemo(() => {
+    const aldea = aldeas.find((a) => a.nombre === formData.aldeaNacimiento);
+    const clanes = aldea?.clanes ?? [];
+    const clan = clanes.find((c) => c.nombre === formData.clan);
+    const especializaciones = clan
+      ? Especializaciones.filter((esp) =>
+          clan.especializaciones.includes(esp.nombre)
+        )
+      : [];
+
+    return {
+      aldeaNacimientoSeleccionada: aldea,
+      clanesDisponibles: clanes,
+      clanSeleccionado: clan,
+      especializacionesDisponibles: especializaciones,
+    };
+  }, [formData.aldeaNacimiento, formData.clan]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "clan") {
+      const apellido = value;
+      const nuevoNombre = formData.nombreBase
+        ? `${formData.nombreBase} ${apellido}`
+        : "";
+      setFormData((prev) => ({
+        ...prev,
+        clan: value,
+        nombrePersonaje: nuevoNombre,
+      }));
+      return;
+    }
+
+    if (name === "nombreBase") {
+      const apellido = clanSeleccionado?.nombre || "";
+      const nuevoNombre = value ? `${value} ${apellido}` : "";
+      setFormData((prev) => ({
+        ...prev,
+        nombreBase: value,
+        nombrePersonaje: nuevoNombre,
+      }));
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -40,6 +90,7 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
     setIsVisible(false);
     setTimeout(() => {
       setFormData({
+        nombreBase: "",
         nombrePersonaje: "",
         edad: "",
         apodo: "",
@@ -56,17 +107,28 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
   };
 
   const handleFinish = () => setPaso(5);
+
   const handleConfirm = async () => {
     const user = auth.currentUser;
     if (!user) return;
 
     try {
       const fichasRef = collection(db, "users", user.uid, "fichas");
+
+      const now = new Date();
+      const createdAtLocal = now.toLocaleDateString("es-CO", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+
       await addDoc(fichasRef, {
         ...formData,
         ryus: 1000,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
+        createdAtLocal,
       });
+
       alert("Ficha creada con éxito");
       handleReset();
     } catch (error) {
@@ -76,21 +138,6 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
   };
 
   if (!isOpen && !isVisible) return null;
-
-  const aldeaNacimientoSeleccionada = aldeas.find(
-    (a) => a.nombre === formData.aldeaNacimiento
-  );
-  const clanesDisponibles = aldeaNacimientoSeleccionada
-    ? aldeaNacimientoSeleccionada.clanes
-    : [];
-  const clanSeleccionado = clanesDisponibles.find(
-    (c) => c.nombre === formData.clan
-  );
-  const especializacionesDisponibles = clanSeleccionado
-    ? Especializaciones.filter((esp) =>
-        clanSeleccionado.especializaciones.includes(esp.nombre)
-      )
-    : [];
 
   return (
     <div
@@ -128,13 +175,16 @@ export default function FichaWizard({ isOpen, onClose, onCreate }) {
             <h3 className="text-lg text-orange-300 mb-2">
               Información Personal
             </h3>
-
             <input
-              name="nombrePersonaje"
+              name="nombreBase"
               placeholder="Nombre del Personaje"
-              className="input mb-3 w-full"
+              className="input mb-1 w-full"
               onChange={handleChange}
             />
+            <p className="text-xs italic text-gray-400 mb-3">
+              Así saldrá en tu ficha:{" "}
+              <strong>{formData.nombrePersonaje}</strong>
+            </p>
 
             <div className="flex gap-3">
               <input

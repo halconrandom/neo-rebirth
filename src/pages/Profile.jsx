@@ -6,6 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import UploadAvatar from "../components/UploadAvatar";
 import { Link } from "react-router-dom";
 import { Settings } from "lucide-react";
+import { evaluarYAsignarMedallas } from "../utils/asignarMedallas";
 
 import CreateCharacterModal from "../components/CreateCharacterModal";
 import UploadCharacterAvatar from "../components/UploadCharacterAvatar";
@@ -25,6 +26,7 @@ export default function Profile() {
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           setUserData(userSnap.data());
+          await evaluarYAsignarMedallas({ uid: firebaseUser.uid, ...userSnap.data() });
         }
 
         // Aquí agregamos la escucha en tiempo real para las fichas
@@ -68,6 +70,9 @@ export default function Profile() {
     setShowModal(false);
   };
 
+
+  
+
   return (
     <div className="relative min-h-screen py-16 px-6 md:px-16 lg:px-32 text-white">
       <div className="flex flex-col md:flex-row gap-8">
@@ -92,14 +97,13 @@ export default function Profile() {
           </div>
 
           <div className="flex justify-center mt-2">
-<Link
-  to="/ajustes"
-  className="flex items-center gap-1 px-3 py-1 text-sm bg-zinc-700 hover:bg-zinc-600 rounded text-white transition"
->
-  <Settings size={16} />
-  Configuración
-</Link>
-
+            <Link
+              to="/ajustes"
+              className="flex items-center gap-1 px-3 py-1 text-sm bg-zinc-700 hover:bg-zinc-600 rounded text-white transition"
+            >
+              <Settings size={16} />
+              Configuración
+            </Link>
           </div>
 
           <div className="mt-6 text-center">
@@ -117,6 +121,7 @@ export default function Profile() {
                   )
                 : "-"}
             </p>
+
             <p className="text-sm text-yellow-400 mt-1">Rango: Sannin</p>
           </div>
         </div>
@@ -169,6 +174,19 @@ export default function Profile() {
                       <p className="text-gray-400 text-xs">
                         {ficha.clan} – {ficha.rango || "Sin rango"}
                       </p>
+                      {ficha.createdAtLocal && (
+                        <p className="text-gray-500 text-[11px] italic">
+                          Creado el{" "}
+                          {new Date(ficha.createdAtLocal).toLocaleDateString(
+                            "es-ES",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                      )}
                     </div>
 
                     {/* Componente para cambiar el avatar de la ficha */}
