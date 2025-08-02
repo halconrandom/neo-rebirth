@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "../firebase";
+import { auth, db } from "../../firebase";
 import {
   collection,
   getDocs,
@@ -34,12 +34,12 @@ import {
   Flame,
 } from "lucide-react";
 
-import Medallas from "../data/Medallas";
-import ActionButton from "../components/adminPanel/ActionButton";
-import SummaryCard from "../components/adminPanel/SummaryCard";
-import ReportItem from "../components/adminPanel/ReportItem";
-import MedallasPanel from "../components/adminPanel/MedallasPanel";
-import DineroPanel from "../components/adminPanel/DineroPanel";
+import Medallas from "../../data/Medallas";
+import ActionButton from "./ActionButton";
+import SummaryCard from "./SummaryCard";
+import ReportItem from "./ReportItem";
+import MedallasPanel from "./MedallasPanel";
+import DineroPanel from "./DineroPanel";
 
 export default function AdminPanel() {
   const [seccionActiva, setSeccionActiva] = useState("Dashboard");
@@ -131,8 +131,16 @@ export default function AdminPanel() {
       <aside className="w-64 bg-zinc-950 p-4 flex flex-col gap-4 border-r border-zinc-800">
         <h2 className="text-2xl font-bold text-orange-400 mb-4">Admin Panel</h2>
         <nav className="flex flex-col gap-2 text-sm">
-          <NavItem icon={<User />} label="Dashboard" onClick={() => setSeccionActiva("Dashboard")} />
-          <NavItem icon={<Shield />} label="User Management" onClick={() => setSeccionActiva("User Management")} />
+          <NavItem
+            icon={<User />}
+            label="Dashboard"
+            onClick={() => setSeccionActiva("Dashboard")}
+          />
+          <NavItem
+            icon={<Shield />}
+            label="User Management"
+            onClick={() => setSeccionActiva("User Management")}
+          />
           <NavItem icon={<Plus />} label="Role Assignment" />
           <NavItem icon={<Flag />} label="Content Moderation" />
           <NavItem icon={<Ban />} label="Ban List" />
@@ -146,15 +154,27 @@ export default function AdminPanel() {
       <main className="flex-1 p-6 overflow-y-auto">
         {seccionActiva === "Dashboard" && (
           <>
-            <h1 className="text-3xl font-bold mb-6 text-orange-300">Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-6 text-orange-300">
+              Dashboard
+            </h1>
             <div className="grid grid-cols-3 gap-6 mb-6">
-              <SummaryCard title="Users" value={usuarios.length} icon={<User />} />
+              <SummaryCard
+                title="Users"
+                value={usuarios.length}
+                icon={<User />}
+              />
               <SummaryCard title="New Roles" value={5} icon={<Plus />} />
-              <SummaryCard title="Pending Posts" value={16} icon={<FileWarning />} />
+              <SummaryCard
+                title="Pending Posts"
+                value={16}
+                icon={<FileWarning />}
+              />
             </div>
             <section className="grid grid-cols-2 gap-6">
               <div className="bg-zinc-800 p-4 rounded-xl shadow">
-                <h2 className="text-lg font-semibold mb-4 text-orange-300">Recent Reports</h2>
+                <h2 className="text-lg font-semibold mb-4 text-orange-300">
+                  Recent Reports
+                </h2>
                 <ul className="space-y-3">
                   <ReportItem tipo="Spam" usuario="user123" />
                   <ReportItem tipo="Harassment" usuario="ninja_89" />
@@ -163,7 +183,9 @@ export default function AdminPanel() {
                 </ul>
               </div>
               <div className="bg-zinc-800 p-4 rounded-xl shadow">
-                <h2 className="text-lg font-semibold mb-4 text-orange-300">Activity Logs</h2>
+                <h2 className="text-lg font-semibold mb-4 text-orange-300">
+                  Activity Logs
+                </h2>
                 <ul className="text-sm space-y-2">
                   <li>✅ Administrator — Role assigned (7 min ago)</li>
                   <li>✅ New user registered (12 min ago)</li>
@@ -207,38 +229,64 @@ export default function AdminPanel() {
             {/* Panel Derecho - Acciones y panel dinámico */}
             <div className="col-span-2">
               <div className="grid grid-cols-5 gap-2 mb-4">
-                <ActionButton icon={<Medal />} label="Medallas" onClick={() => setVistaActiva("medallas")} disabled={!usuarioSeleccionado} />
+                <ActionButton
+                  icon={<Medal />}
+                  label="Medallas"
+                  onClick={() => setVistaActiva("medallas")}
+                  disabled={!usuarioSeleccionado}
+                />
                 <ActionButton icon={<FileText />} label="Fichas" disabled />
                 <ActionButton icon={<MessageCircle />} label="Posts" disabled />
-                <ActionButton icon={<AlertTriangle />} label="Advertencias" disabled />
-                <ActionButton icon={<DollarSign />} label="Dinero" onClick={() => setVistaActiva("dinero")} disabled={!usuarioSeleccionado} />
+                <ActionButton
+                  icon={<AlertTriangle />}
+                  label="Advertencias"
+                  disabled
+                />
+                <ActionButton
+                  icon={<DollarSign />}
+                  label="Dinero"
+                  onClick={() => setVistaActiva("dinero")}
+                  disabled={!usuarioSeleccionado}
+                />
                 <ActionButton icon={<Backpack />} label="Objetos" disabled />
-                <ActionButton icon={<Skull />} label="Fichas Muertas" disabled />
+                <ActionButton
+                  icon={<Skull />}
+                  label="Fichas Muertas"
+                  disabled
+                />
                 <ActionButton icon={<Activity />} label="Actividad" disabled />
-                <ActionButton icon={<Settings />} label="Editar Datos" disabled />
-                <ActionButton icon={<Flame />} label="Resetear Cuenta" disabled />
+                <ActionButton
+                  icon={<Settings />}
+                  label="Editar Datos"
+                  disabled
+                />
+                <ActionButton
+                  icon={<Flame />}
+                  label="Resetear Cuenta"
+                  disabled
+                />
               </div>
 
-              <div className="bg-zinc-800 p-4 rounded-xl min-h-[300px]">
+              <div
+                key={vistaActiva}
+                className="bg-zinc-800 p-4 rounded-xl min-h-[300px] transition-all duration-500 animate-fadeIn"
+              >
                 {vistaActiva === "medallas" && usuarioSeleccionado && (
                   <MedallasPanel
-                    usuario={usuarioSeleccionado}
-                    agregarMedalla={agregarMedalla}
-                    quitarMedalla={quitarMedalla}
-                    medallaSeleccionada={medallaSeleccionada}
-                    setMedallaSeleccionada={setMedallaSeleccionada}
+                    usuarioSeleccionado={usuarioSeleccionado}
+                    setUsuarioSeleccionado={setUsuarioSeleccionado}
                   />
                 )}
                 {vistaActiva === "dinero" && usuarioSeleccionado && (
                   <DineroPanel
-                    usuario={usuarioSeleccionado}
-                    setUsuario={setUsuarioSeleccionado}
-                    ryusEditados={ryusEditados}
-                    setRyusEditados={setRyusEditados}
+                    usuarioSeleccionado={usuarioSeleccionado}
+                    setUsuarioSeleccionado={setUsuarioSeleccionado}
                   />
                 )}
                 {!vistaActiva && (
-                  <p className="text-sm text-zinc-500">Selecciona una acción para comenzar.</p>
+                  <p className="text-sm text-zinc-500">
+                    Selecciona una acción para comenzar.
+                  </p>
                 )}
               </div>
             </div>
@@ -251,7 +299,10 @@ export default function AdminPanel() {
 
 function NavItem({ icon, label, onClick }) {
   return (
-    <button className="flex items-center gap-2 px-3 py-2 hover:bg-zinc-800 rounded transition" onClick={onClick}>
+    <button
+      className="flex items-center gap-2 px-3 py-2 hover:bg-zinc-800 rounded transition"
+      onClick={onClick}
+    >
       {icon} <span>{label}</span>
     </button>
   );

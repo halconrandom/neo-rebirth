@@ -9,7 +9,7 @@ import ForumsPage from "./forums/ForumsPage";
 import FichaDetalle from "./pages/FichaDetalle";
 import Tienda from "./pages/Tienda";
 import PerfilPublico from "./components/PerfilPublico";
-import AdminPanel from "./components/AdminPanel";
+import AdminPanel from "./components/adminPanel/AdminPanel";
 import UserSettings from "./components/ProfileSettings";
 
 
