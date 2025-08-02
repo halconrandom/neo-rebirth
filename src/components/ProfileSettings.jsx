@@ -75,16 +75,26 @@ export default function UserSettings() {
         setIdioma(data.idioma || "es");
         setTema(data.tema || "oscuro");
 
-        // ✅ Preferir `medallasPersonalizadas` si existe
+        const baseMedallas = data.medallas || [];
+
         if (Array.isArray(data.medallasPersonalizadas)) {
-          setMedallasPersonalizadas(data.medallasPersonalizadas);
+          // 1. Medallas que ya tiene
+          const actuales = data.medallasPersonalizadas;
+
+          // 2. Medallas nuevas que faltan
+          const faltantes = baseMedallas
+            .filter((nombre) => !actuales.some((m) => m.nombre === nombre))
+            .map((nombre) => ({ nombre, visible: true }));
+
+          // 3. Unir ambas
+          setMedallasPersonalizadas([...actuales, ...faltantes]);
         } else {
-          // si no existe, crear estructura a partir de `medallas`
-          const baseMedallas = (data.medallas || []).map((nombre) => ({
+          // Si no hay personalizadas aún, crearlas todas visibles
+          const iniciales = baseMedallas.map((nombre) => ({
             nombre,
             visible: true,
           }));
-          setMedallasPersonalizadas(baseMedallas);
+          setMedallasPersonalizadas(iniciales);
         }
       }
     });
